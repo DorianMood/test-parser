@@ -21,13 +21,24 @@ async function getBikFromCbr() {
   }
 
   // Write temporary file
-  const tmp_dir = os.tmpdir();
+  const tmp_dir = "."; //os.tmpdir();
   const tmp_file_name = res.headers
     .get("content-disposition")
     .split(";")[1]
     .split("=")[1];
   const tmp_file_path = path.join(tmp_dir, tmp_file_name);
-  await streamPipeline(res.body, fs.createWriteStream(tmp_file_path));
+  const saveArchive = new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(tmp_file_path);
+    res.body.pipe(file);
+    res.body.on("finish", () => {
+      file.close();
+      resolve();
+    });
+    res.body.on("error", reject);
+  });
+  return saveArchive;
+
+  // await streamPipeline(res.body, fs.createWriteStream(tmp_file_path));
 
   // Unpack data
   const archive = new AdmZip(tmp_file_path);
