@@ -45,7 +45,9 @@ async function getBikFromCbr() {
     return data;
   });
 
-  return jsonData.ED807.BICDirectoryEntry.map((entry) => {
+  const rootKey = Object.keys(jsonData)[0];
+
+  return jsonData[rootKey].BICDirectoryEntry.map((entry) => {
     return {
       id: entry.$.BIC,
       name: entry.ParticipantInfo && entry.ParticipantInfo[0].$.NameP,
