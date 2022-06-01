@@ -57,6 +57,5 @@ async function getBikFromCbr() {
 }
 
 getBikFromCbr().then((data) => {
-  console.log("done");
   console.log(data[0]);
 });
