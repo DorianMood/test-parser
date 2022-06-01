@@ -1,15 +1,12 @@
-import fs from "node:fs";
+import fs, { unlink } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import util from "node:util";
-import { pipeline } from "node:stream";
+import { pipeline } from "node:stream/promises";
 
 import fetch from "node-fetch";
 import AdmZip from "adm-zip";
 import iconv from "iconv-lite";
 import xml2js from "xml2js";
-
-const streamPipeline = util.promisify(pipeline);
 
 const CBR_URL = "http://www.cbr.ru/s/newbik";
 
@@ -27,7 +24,7 @@ async function getBikFromCbr() {
     .split(";")[1]
     .split("=")[1];
   const tmp_file_path = path.join(tmp_dir, tmp_file_name);
-  await streamPipeline(res.body, fs.createWriteStream(tmp_file_path));
+  await pipeline(res.body, fs.createWriteStream(tmp_file_path));
 
   // Unpack data
   const archive = new AdmZip(tmp_file_path);
@@ -40,8 +37,11 @@ async function getBikFromCbr() {
   const decoded = iconv.decode(data, "Windows-1251");
   const jsonData = await xml2js.parseStringPromise(decoded).then((data) => {
     // Clear tmp files
-    fs.unlinkSync(tmp_file_path);
-    fs.unlinkSync(xml_file_path);
+    const unlinkCallback = (err) => {
+      if (err) throw Error(err);
+    };
+    fs.unlink(tmp_file_path, unlinkCallback);
+    fs.unlink(xml_file_path, unlinkCallback);
     return data;
   });
 
@@ -58,4 +58,5 @@ async function getBikFromCbr() {
 
 getBikFromCbr().then((data) => {
   console.log("done");
+  console.log(data[0]);
 });
