@@ -1,0 +1,18 @@
+{
+  "name": "test-parser",
+  "version": "0.0.0",
+  "description": "Test parser for cbr.ru website",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "type": "module",
+  "author": "dorianmood",
+  "license": "ISC",
+  "dependencies": {
+    "adm-zip": "^0.5.9",
+    "iconv-lite": "^0.6.3",
+    "node-fetch": "^3.2.4",
+    "xml2js": "^0.4.23"
+  }
+}
